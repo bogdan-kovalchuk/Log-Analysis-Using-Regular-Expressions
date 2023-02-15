@@ -29,6 +29,14 @@ class TestParseLine(unittest.TestCase):
     def test_empty_line(self):
         self.assertIsNone(parse_line(""))
 
+    def test_unknown_message_type_is_skipped(self):
+        line = "Jan 31 00:00:00 host ticky: WARNING Something happened (alice)"
+        self.assertIsNone(parse_line(line))
+
+    def test_debug_message_type_is_skipped(self):
+        line = "Jan 31 00:00:00 host ticky: DEBUG Trace info (bob)"
+        self.assertIsNone(parse_line(line))
+
 
 class TestParseFile(unittest.TestCase):
     def test_parse_small_file(self):
