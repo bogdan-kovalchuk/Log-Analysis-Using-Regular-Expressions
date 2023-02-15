@@ -67,6 +67,21 @@ class TestParseFile(unittest.TestCase):
         finally:
             os.unlink(tmp_path)
 
+    def test_parse_file_with_non_utf8_bytes(self):
+        content = b"Jan 31 00:09:39 ubuntu.local ticky: INFO Created ticket [#1] (alice)\n"
+        content += b"Jan 31 00:10:00 ubuntu.local ticky: INFO Bad line \xff\xfe (bob)\n"
+        content += b"Jan 31 00:11:00 ubuntu.local ticky: ERROR Timeout (charlie)\n"
+        with tempfile.NamedTemporaryFile(suffix=".log", delete=False) as f:
+            f.write(content)
+            tmp_path = f.name
+        try:
+            entries = parse_file(tmp_path)
+            self.assertEqual(len(entries), 3)
+            self.assertEqual(entries[0].user, "alice")
+            self.assertEqual(entries[2].user, "charlie")
+        finally:
+            os.unlink(tmp_path)
+
 
 if __name__ == "__main__":
     unittest.main()

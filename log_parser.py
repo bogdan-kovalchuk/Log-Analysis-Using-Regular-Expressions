@@ -21,9 +21,9 @@ def parse_line(line):
     return LogEntry(msg_type, match.group(2), match.group(3))
 
 
-def parse_file(filepath):
+def parse_file(filepath, encoding="utf-8"):
     entries = []
-    with open(filepath, "r") as f:
+    with open(filepath, "r", encoding=encoding, errors="replace") as f:
         for line in f:
             entry = parse_line(line)
             if entry is not None:
