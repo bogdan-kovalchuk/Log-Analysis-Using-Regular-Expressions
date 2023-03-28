@@ -35,6 +35,16 @@ class TestCountErrors(unittest.TestCase):
         self.assertEqual(result[0], ("B", 3))
         self.assertEqual(result[1], ("A", 1))
 
+    def test_tie_break_is_alphabetical_by_message(self):
+        entries = [
+            LogEntry("ERROR", "Zebra", "u1"),
+            LogEntry("ERROR", "Alpha", "u2"),
+            LogEntry("ERROR", "Mango", "u3"),
+        ]
+        result = count_errors(entries)
+        messages = [msg for msg, _ in result]
+        self.assertEqual(messages, ["Alpha", "Mango", "Zebra"])
+
 
 class TestCountPerUser(unittest.TestCase):
     def test_counts_info_and_error(self):

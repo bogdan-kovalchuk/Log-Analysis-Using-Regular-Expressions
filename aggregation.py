@@ -8,7 +8,7 @@ def count_errors(entries):
     for entry in entries:
         if entry.message_type == "ERROR":
             per_error[entry.message] = per_error.get(entry.message, 0) + 1
-    sorted_errors = sorted(per_error.items(), key=operator.itemgetter(1), reverse=True)
+    sorted_errors = sorted(per_error.items(), key=lambda x: (-x[1], x[0]))
     return [(msg, count) for msg, count in sorted_errors]
 
 
