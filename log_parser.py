@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import re
 from collections import namedtuple
 
@@ -22,6 +23,8 @@ def parse_line(line):
 
 
 def parse_file(filepath, encoding="utf-8"):
+    if not os.path.isfile(filepath):
+        raise FileNotFoundError(f"Log file not found: {filepath}")
     entries = []
     with open(filepath, "r", encoding=encoding, errors="replace") as f:
         for line in f:

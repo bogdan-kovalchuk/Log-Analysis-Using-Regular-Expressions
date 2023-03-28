@@ -82,6 +82,11 @@ class TestParseFile(unittest.TestCase):
         finally:
             os.unlink(tmp_path)
 
+    def test_parse_file_missing_raises_descriptive_error(self):
+        with self.assertRaises(FileNotFoundError) as ctx:
+            parse_file("/nonexistent/path/to/syslog.log")
+        self.assertIn("/nonexistent/path/to/syslog.log", str(ctx.exception))
+
 
 if __name__ == "__main__":
     unittest.main()
