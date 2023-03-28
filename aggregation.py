@@ -15,6 +15,8 @@ def count_errors(entries):
 def count_per_user(entries):
     per_user = {}
     for entry in entries:
+        if entry.message_type not in ("INFO", "ERROR"):
+            continue
         if entry.user not in per_user:
             per_user[entry.user] = {"INFO": 0, "ERROR": 0}
         per_user[entry.user][entry.message_type] += 1

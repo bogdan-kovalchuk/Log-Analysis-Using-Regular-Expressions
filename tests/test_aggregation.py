@@ -69,6 +69,16 @@ class TestCountPerUser(unittest.TestCase):
         names = [r[0] for r in result]
         self.assertEqual(names, ["alice", "bob", "charlie"])
 
+    def test_unknown_message_type_is_ignored(self):
+        entries = [
+            LogEntry("INFO", "msg", "alice"),
+            LogEntry("WARNING", "msg", "alice"),
+            LogEntry("DEBUG", "msg", "bob"),
+            LogEntry("ERROR", "msg", "bob"),
+        ]
+        result = count_per_user(entries)
+        self.assertEqual(result, [("alice", 1, 0), ("bob", 0, 1)])
+
 
 if __name__ == "__main__":
     unittest.main()
