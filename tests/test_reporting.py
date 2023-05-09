@@ -35,6 +35,21 @@ class TestWriteErrorCsv(unittest.TestCase):
         finally:
             os.unlink(tmp_path)
 
+    def test_formula_injection_is_sanitized(self):
+        data = [("=SUM(A1:A10)", 5), ("+cmd", 3), ("-drop", 2), ("@evil", 1)]
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as f:
+            tmp_path = f.name
+        try:
+            write_error_csv(data, tmp_path)
+            with open(tmp_path, "r") as f:
+                reader = list(csv.reader(f))
+            self.assertEqual(reader[1][0], "'=SUM(A1:A10)")
+            self.assertEqual(reader[2][0], "'+cmd")
+            self.assertEqual(reader[3][0], "'-drop")
+            self.assertEqual(reader[4][0], "'@evil")
+        finally:
+            os.unlink(tmp_path)
+
 
 class TestWriteUserCsv(unittest.TestCase):
     def test_writes_header_and_rows(self):
@@ -62,6 +77,19 @@ class TestWriteUserCsv(unittest.TestCase):
             self.assertEqual(len(reader), 3)
             self.assertEqual(reader[1], ["alice", "1", "0"])
             self.assertEqual(reader[2], ["bob", "2", "1"])
+        finally:
+            os.unlink(tmp_path)
+
+    def test_user_formula_injection_is_sanitized(self):
+        data = [("=alice", 1, 0), ("+bob", 2, 1)]
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as f:
+            tmp_path = f.name
+        try:
+            write_user_csv(data, tmp_path)
+            with open(tmp_path, "r") as f:
+                reader = list(csv.reader(f))
+            self.assertEqual(reader[1][0], "'=alice")
+            self.assertEqual(reader[2][0], "'+bob")
         finally:
             os.unlink(tmp_path)
 
