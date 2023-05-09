@@ -93,6 +93,14 @@ class TestWriteUserCsv(unittest.TestCase):
         finally:
             os.unlink(tmp_path)
 
+    def test_atomic_write_no_temp_left_on_success(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            out_path = os.path.join(tmpdir, "errors.csv")
+            write_error_csv([("Timeout", 3)], out_path)
+            leftovers = [f for f in os.listdir(tmpdir) if f.endswith(".tmp")]
+            self.assertEqual(leftovers, [])
+            self.assertTrue(os.path.exists(out_path))
+
 
 if __name__ == "__main__":
     unittest.main()
