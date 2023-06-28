@@ -3,6 +3,7 @@
 import sys
 import csv
 import os
+import html
 
 def process_csv(csv_file):
     """Turn the contents of the CSV file into a list of lists"""
@@ -48,10 +49,11 @@ td, th {
     for i, row in enumerate(data):
         html_content += "<tr>"
         for column in row:
+            escaped = html.escape(column, quote=True)
             if i == 0:
-                html_content += "<th>{}</th>".format(column)
+                html_content += "<th>{}</th>".format(escaped)
             else:
-                html_content += "<td>{}</td>".format(column)
+                html_content += "<td>{}</td>".format(escaped)
         html_content += "</tr>"
 
     html_content += """</tr></table></body></html>"""
