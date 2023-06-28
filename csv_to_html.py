@@ -56,7 +56,7 @@ td, th {
                 html_content += "<td>{}</td>".format(escaped)
         html_content += "</tr>"
 
-    html_content += """</tr></table></body></html>"""
+    html_content += """</table></body></html>"""
     return html_content
 
 
@@ -83,13 +83,13 @@ def main():
     html_file = sys.argv[2]
 
     # Check that file extensions are included
-    if ".csv" not in csv_file:
+    if not csv_file.endswith(".csv"):
         print('Missing ".csv" file extension from first command-line argument!')
         print("Exiting program...")
         sys.exit(1)
 
-    if ".html" not in html_file:
-        print('Missing ".html" file extension from second command-line argument!                                                                                                             ')
+    if not html_file.endswith(".html"):
+        print('Missing ".html" file extension from second command-line argument!')
         print("Exiting program...")
         sys.exit(1)
 

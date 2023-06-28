@@ -43,5 +43,28 @@ class TestWriteHtmlFile(unittest.TestCase):
                 self.assertEqual(f.read(), "<html>test</html>")
 
 
+class TestHtmlStructure(unittest.TestCase):
+    def test_no_duplicate_closing_tr(self):
+        data = [["H1"], ["V1"]]
+        result = data_to_html("T", data)
+        self.assertEqual(result.count("</tr>"), 2)
+
+    def test_extension_validation_uses_endswith(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_path = os.path.join(tmpdir, "data.csv")
+            with open(csv_path, "w", newline="") as f:
+                f.write("a,b\n1,2\n")
+            html_path = os.path.join(tmpdir, "data.html")
+            from csv_to_html import main as csv_main
+            import sys
+            old_argv = sys.argv
+            try:
+                sys.argv = ["csv_to_html.py", csv_path, html_path]
+                csv_main()
+                self.assertTrue(os.path.exists(html_path))
+            finally:
+                sys.argv = old_argv
+
+
 if __name__ == "__main__":
     unittest.main()
