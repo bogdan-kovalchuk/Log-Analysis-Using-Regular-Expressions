@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import os
 import sys
 
 from aggregation import count_errors, count_per_user
@@ -22,6 +23,10 @@ def build_parser():
 def main(argv=None):
     parser = build_parser()
     args = parser.parse_args(argv)
+
+    if not os.path.isfile(args.logfile):
+        print(f"Error: log file not found: {args.logfile}", file=sys.stderr)
+        sys.exit(1)
 
     entries = parse_file(args.logfile)
     error_data = count_errors(entries)

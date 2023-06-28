@@ -55,6 +55,11 @@ class TestMain(unittest.TestCase):
             self.assertEqual(user_rows[2], ["breee", "0", "1"])
             self.assertEqual(user_rows[3], ["mdouglas", "1", "0"])
 
+    def test_missing_logfile_exits_with_error(self):
+        with self.assertRaises(SystemExit) as ctx:
+            main(["/nonexistent/path/to/log.log"])
+        self.assertEqual(ctx.exception.code, 1)
+
 
 if __name__ == "__main__":
     unittest.main()
