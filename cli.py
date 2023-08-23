@@ -28,12 +28,16 @@ def main(argv=None):
         print(f"Error: log file not found: {args.logfile}", file=sys.stderr)
         sys.exit(1)
 
-    entries = parse_file(args.logfile)
-    error_data = count_errors(entries)
-    user_data = count_per_user(entries)
+    try:
+        entries = parse_file(args.logfile)
+        error_data = count_errors(entries)
+        user_data = count_per_user(entries)
 
-    write_error_csv(error_data, args.error_csv)
-    write_user_csv(user_data, args.user_csv)
+        write_error_csv(error_data, args.error_csv)
+        write_user_csv(user_data, args.user_csv)
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

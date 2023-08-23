@@ -60,6 +60,17 @@ class TestMain(unittest.TestCase):
             main(["/nonexistent/path/to/log.log"])
         self.assertEqual(ctx.exception.code, 1)
 
+    def test_invalid_output_path_exits_with_error(self):
+        log_content = "Jan 31 00:09:39 ubuntu.local ticky: INFO Created ticket [#1] (alice)\n"
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_path = os.path.join(tmpdir, "test.log")
+            with open(log_path, "w") as f:
+                f.write(log_content)
+            bad_output = os.path.join(tmpdir, "nonexistent_dir", "out.csv")
+            with self.assertRaises(SystemExit) as ctx:
+                main([log_path, "--error-csv", bad_output])
+            self.assertEqual(ctx.exception.code, 1)
+
 
 if __name__ == "__main__":
     unittest.main()
