@@ -17,7 +17,22 @@ def build_parser():
                         help="Output path for error message CSV")
     parser.add_argument("--user-csv", default="user_statistics.csv",
                         help="Output path for user statistics CSV")
+    parser.add_argument("--encoding", default="utf-8",
+                        help="Encoding of the log file (default: utf-8)")
     return parser
+
+
+def _validate_output_paths(logfile, error_csv, user_csv):
+    log_real = os.path.normcase(os.path.realpath(logfile))
+    error_real = os.path.normcase(os.path.realpath(error_csv))
+    user_real = os.path.normcase(os.path.realpath(user_csv))
+
+    if error_real == log_real:
+        raise ValueError(f"--error-csv must not overwrite the source log file: {error_csv}")
+    if user_real == log_real:
+        raise ValueError(f"--user-csv must not overwrite the source log file: {user_csv}")
+    if error_real == user_real:
+        raise ValueError(f"--error-csv and --user-csv must not point to the same file: {error_csv}")
 
 
 def main(argv=None):
@@ -29,7 +44,13 @@ def main(argv=None):
         sys.exit(1)
 
     try:
-        entries = parse_file(args.logfile)
+        _validate_output_paths(args.logfile, args.error_csv, args.user_csv)
+    except ValueError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    try:
+        entries = parse_file(args.logfile, encoding=args.encoding)
         error_data = count_errors(entries)
         user_data = count_per_user(entries)
 
