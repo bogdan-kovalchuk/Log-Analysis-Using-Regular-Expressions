@@ -4,16 +4,25 @@ import sys
 import csv
 import os
 import html
+import tempfile
 
 def process_csv(csv_file):
     """Turn the contents of the CSV file into a list of lists"""
+    if os.path.isdir(csv_file):
+        raise IsADirectoryError(f"CSV input path is a directory: {csv_file}")
+    if not os.path.isfile(csv_file):
+        raise FileNotFoundError(f"CSV input path is not a regular file: {csv_file}")
     print("Processing {}".format(csv_file))
-    with open(csv_file,"r") as datafile:
+    with open(csv_file, "r", encoding="utf-8", newline="") as datafile:
         data = list(csv.reader(datafile))
     return data
 
 def data_to_html(title, data):
     """Turns a list of lists into an HTML table"""
+    escaped_title = html.escape(title, quote=True)
+
+    if not data:
+        return "<html><body><h2>{}</h2><p>No data</p></body></html>".format(escaped_title)
 
     # HTML Headers
     html_content = """
@@ -42,7 +51,7 @@ td, th {
 
 
     # Add the header part with the given title
-    html_content += "<h2>{}</h2><table>".format(title)
+    html_content += "<h2>{}</h2><table>".format(escaped_title)
 
     # Add each row in data as a row in the table
     # The first line is special and gets treated separately
@@ -62,12 +71,22 @@ td, th {
 
 def write_html_file(html_string, html_file):
 
+    if os.path.isdir(html_file):
+        raise IsADirectoryError(f"HTML output path is a directory: {html_file}")
+
     # Making a note of whether the html file we're writing exists or not
     if os.path.exists(html_file):
         print("{} already exists. Overwriting...".format(html_file))
 
-    with open(html_file,'w') as htmlfile:
-        htmlfile.write(html_string)
+    dirpath = os.path.dirname(os.path.abspath(html_file)) or "."
+    fd, tmp_path = tempfile.mkstemp(dir=dirpath, suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="") as htmlfile:
+            htmlfile.write(html_string)
+        os.replace(tmp_path, html_file)
+    except BaseException:
+        os.unlink(tmp_path)
+        raise
     print("Table succesfully written to {}".format(html_file))
 
 def main():
@@ -100,10 +119,15 @@ def main():
         sys.exit(1)
 
     # Process the data and turn it into an HTML
-    data = process_csv(csv_file)
-    title = os.path.splitext(os.path.basename(csv_file))[0].replace("_", " ").title()
-    html_string = data_to_html(title, data)
-    write_html_file(html_string, html_file)
+    try:
+        data = process_csv(csv_file)
+        title = os.path.splitext(os.path.basename(csv_file))[0].replace("_", " ").title()
+        html_string = data_to_html(title, data)
+        write_html_file(html_string, html_file)
+    except OSError as e:
+        print(f"Error: {e}")
+        print("Exiting program...")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
