@@ -23,6 +23,8 @@ def parse_line(line):
 
 
 def parse_file(filepath, encoding="utf-8"):
+    if os.path.isdir(filepath):
+        raise IsADirectoryError(f"Path is a directory, not a file: {filepath}")
     if not os.path.isfile(filepath):
         raise FileNotFoundError(f"Log file not found: {filepath}")
     entries = []

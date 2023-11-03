@@ -87,6 +87,12 @@ class TestParseFile(unittest.TestCase):
             parse_file("/nonexistent/path/to/syslog.log")
         self.assertIn("/nonexistent/path/to/syslog.log", str(ctx.exception))
 
+    def test_parse_file_directory_raises_clear_error(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with self.assertRaises(IsADirectoryError) as ctx:
+                parse_file(tmpdir)
+            self.assertIn(tmpdir, str(ctx.exception))
+
 
 if __name__ == "__main__":
     unittest.main()
