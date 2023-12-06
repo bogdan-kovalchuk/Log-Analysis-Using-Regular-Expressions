@@ -93,6 +93,19 @@ class TestParseFile(unittest.TestCase):
                 parse_file(tmpdir)
             self.assertIn(tmpdir, str(ctx.exception))
 
+    def test_parse_file_with_utf8_bom(self):
+        content = b"\xef\xbb\xbf"
+        content += b"Jan 31 00:09:39 ubuntu.local ticky: INFO Created ticket [#1] (alice)\n"
+        with tempfile.NamedTemporaryFile(suffix=".log", delete=False) as f:
+            f.write(content)
+            tmp_path = f.name
+        try:
+            entries = parse_file(tmp_path)
+            self.assertEqual(len(entries), 1)
+            self.assertEqual(entries[0].user, "alice")
+        finally:
+            os.unlink(tmp_path)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -27,8 +27,13 @@ def parse_file(filepath, encoding="utf-8"):
         raise IsADirectoryError(f"Path is a directory, not a file: {filepath}")
     if not os.path.isfile(filepath):
         raise FileNotFoundError(f"Log file not found: {filepath}")
+    actual_encoding = encoding
+    if encoding == "utf-8":
+        with open(filepath, "rb") as f:
+            if f.read(3) == b"\xef\xbb\xbf":
+                actual_encoding = "utf-8-sig"
     entries = []
-    with open(filepath, "r", encoding=encoding, errors="replace") as f:
+    with open(filepath, "r", encoding=actual_encoding, errors="replace") as f:
         for line in f:
             entry = parse_line(line)
             if entry is not None:
