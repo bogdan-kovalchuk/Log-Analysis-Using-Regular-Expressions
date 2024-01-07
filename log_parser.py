@@ -19,7 +19,10 @@ def parse_line(line):
     msg_type = match.group(1)
     if msg_type not in VALID_TYPES:
         return None
-    return LogEntry(msg_type, match.group(2), match.group(3))
+    message = match.group(2).strip()
+    if not message:
+        return None
+    return LogEntry(msg_type, message, match.group(3))
 
 
 def parse_file(filepath, encoding="utf-8"):
