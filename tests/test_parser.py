@@ -31,6 +31,10 @@ class TestParseLine(unittest.TestCase):
     def test_non_matching_line(self):
         self.assertIsNone(parse_line("some random log line"))
 
+    def test_record_with_trailing_content_is_skipped(self):
+        line = "Jan 31 00:09:39 host ticky: INFO Created ticket (alice) unexpected"
+        self.assertIsNone(parse_line(line))
+
     def test_empty_line(self):
         self.assertIsNone(parse_line(""))
 

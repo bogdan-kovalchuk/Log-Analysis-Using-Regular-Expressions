@@ -4,7 +4,7 @@ import os
 import re
 from collections import namedtuple
 
-LOG_PATTERN = re.compile(r"ticky: ([\w]+) (.+) \(([\w.-]+)\)")
+LOG_PATTERN = re.compile(r"ticky: ([\w]+) (.+) \(([\w.-]+)\)\s*$")
 
 LogEntry = namedtuple("LogEntry", ["message_type", "message", "user"])
 
