@@ -23,6 +23,11 @@ class TestParseLine(unittest.TestCase):
         entry = parse_line(line)
         self.assertEqual(entry, LogEntry("INFO", "Commented on ticket [#6518]", "rr.robinson"))
 
+    def test_user_with_hyphen(self):
+        line = "Jan 31 00:09:39 ubuntu.local ticky: INFO Created ticket [#4217] (mary-jane)"
+        entry = parse_line(line)
+        self.assertEqual(entry.user, "mary-jane")
+
     def test_non_matching_line(self):
         self.assertIsNone(parse_line("some random log line"))
 
