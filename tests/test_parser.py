@@ -119,6 +119,17 @@ class TestParseFile(unittest.TestCase):
         finally:
             os.unlink(tmp_path)
 
+    def test_utf8_alias_handles_bom(self):
+        content = b"\xef\xbb\xbfJan 31 00:09:39 host ticky: INFO Created ticket (alice)\n"
+        with tempfile.NamedTemporaryFile(suffix=".log", delete=False) as f:
+            f.write(content)
+            tmp_path = f.name
+        try:
+            entries = parse_file(tmp_path, encoding="UTF_8")
+            self.assertEqual(entries[0].user, "alice")
+        finally:
+            os.unlink(tmp_path)
+
 
 if __name__ == "__main__":
     unittest.main()

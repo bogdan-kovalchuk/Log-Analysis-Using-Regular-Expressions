@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import codecs
 import os
 import re
 from collections import namedtuple
@@ -31,7 +32,7 @@ def parse_file(filepath, encoding="utf-8"):
     if not os.path.isfile(filepath):
         raise FileNotFoundError(f"Log file not found: {filepath}")
     actual_encoding = encoding
-    if encoding == "utf-8":
+    if codecs.lookup(encoding).name == "utf-8":
         with open(filepath, "rb") as f:
             if f.read(3) == b"\xef\xbb\xbf":
                 actual_encoding = "utf-8-sig"
