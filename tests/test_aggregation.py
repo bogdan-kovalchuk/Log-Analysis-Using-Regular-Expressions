@@ -45,6 +45,17 @@ class TestCountErrors(unittest.TestCase):
         messages = [msg for msg, _ in result]
         self.assertEqual(messages, ["Alpha", "Mango", "Zebra"])
 
+    def test_tie_break_is_case_insensitive_and_deterministic(self):
+        entries = [
+            LogEntry("ERROR", "beta", "u1"),
+            LogEntry("ERROR", "Alpha", "u2"),
+            LogEntry("ERROR", "alpha", "u3"),
+        ]
+        self.assertEqual(
+            count_errors(entries),
+            [("Alpha", 1), ("alpha", 1), ("beta", 1)],
+        )
+
 
 class TestCountPerUser(unittest.TestCase):
     def test_counts_info_and_error(self):
