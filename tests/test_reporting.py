@@ -89,6 +89,15 @@ class TestWriteUserCsv(unittest.TestCase):
         finally:
             os.unlink(tmp_path)
 
+    def test_non_integer_max_users_is_rejected(self):
+        with tempfile.NamedTemporaryFile(suffix=".csv", delete=False) as f:
+            tmp_path = f.name
+        try:
+            with self.assertRaisesRegex(TypeError, "integer"):
+                write_user_csv([("alice", 1, 0)], tmp_path, max_users="1")
+        finally:
+            os.unlink(tmp_path)
+
     def test_user_formula_injection_is_sanitized(self):
         data = [("=alice", 1, 0), ("+bob", 2, 1)]
         with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as f:

@@ -37,6 +37,8 @@ def write_error_csv(error_data, filepath, encoding="utf-8"):
 
 
 def write_user_csv(user_data, filepath, max_users=None, encoding="utf-8"):
+    if max_users is not None and (isinstance(max_users, bool) or not isinstance(max_users, int)):
+        raise TypeError("max_users must be an integer or None")
     if max_users is not None and max_users < 0:
         raise ValueError("max_users must be non-negative")
     rows = user_data[:max_users] if max_users is not None else user_data
