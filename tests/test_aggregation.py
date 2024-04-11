@@ -80,6 +80,15 @@ class TestCountPerUser(unittest.TestCase):
         names = [r[0] for r in result]
         self.assertEqual(names, ["alice", "bob", "charlie"])
 
+    def test_user_sort_is_case_insensitive_and_deterministic(self):
+        entries = [
+            LogEntry("INFO", "msg", "bob"),
+            LogEntry("INFO", "msg", "Alice"),
+            LogEntry("INFO", "msg", "alice"),
+        ]
+        names = [row[0] for row in count_per_user(entries)]
+        self.assertEqual(names, ["Alice", "alice", "bob"])
+
     def test_unknown_message_type_is_ignored(self):
         entries = [
             LogEntry("INFO", "msg", "alice"),
