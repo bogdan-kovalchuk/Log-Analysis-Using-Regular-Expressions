@@ -19,6 +19,8 @@ def _atomic_write(filepath, write_fn, encoding="utf-8"):
     if os.path.isdir(filepath):
         raise IsADirectoryError(f"Output path is a directory: {filepath}")
     dirpath = os.path.dirname(os.path.abspath(filepath)) or "."
+    if not os.path.isdir(dirpath):
+        raise FileNotFoundError(f"Output directory does not exist: {dirpath}")
     fd, tmp_path = tempfile.mkstemp(dir=dirpath, suffix=".tmp")
     try:
         with os.fdopen(fd, "w", newline="", encoding=encoding) as f:

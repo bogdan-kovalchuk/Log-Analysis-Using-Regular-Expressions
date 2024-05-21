@@ -85,6 +85,12 @@ class TestWriteUserCsv(unittest.TestCase):
             with self.assertRaisesRegex(IsADirectoryError, "Output path is a directory"):
                 write_error_csv([("Timeout", 1)], tmpdir)
 
+    def test_missing_output_directory_is_descriptive(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "missing", "errors.csv")
+            with self.assertRaisesRegex(FileNotFoundError, "Output directory does not exist"):
+                write_error_csv([("Timeout", 1)], output_path)
+
     def test_negative_max_users_is_rejected(self):
         with tempfile.NamedTemporaryFile(suffix=".csv", delete=False) as f:
             tmp_path = f.name
