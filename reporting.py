@@ -27,7 +27,8 @@ def _atomic_write(filepath, write_fn, encoding="utf-8"):
             write_fn(f)
         os.replace(tmp_path, filepath)
     except BaseException:
-        os.unlink(tmp_path)
+        if os.path.exists(tmp_path):
+            os.unlink(tmp_path)
         raise
 
 

@@ -4,6 +4,7 @@ import csv
 import os
 import tempfile
 import unittest
+from unittest import mock
 
 from reporting import _sanitize, write_error_csv, write_user_csv
 
@@ -90,6 +91,18 @@ class TestWriteUserCsv(unittest.TestCase):
             output_path = os.path.join(tmpdir, "missing", "errors.csv")
             with self.assertRaisesRegex(FileNotFoundError, "Output directory does not exist"):
                 write_error_csv([("Timeout", 1)], output_path)
+
+    def test_failed_replace_preserves_existing_output_and_cleans_temp_file(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "errors.csv")
+            with open(output_path, "w") as f:
+                f.write("existing output\n")
+            with mock.patch("reporting.os.replace", side_effect=OSError("rename failed")):
+                with self.assertRaisesRegex(OSError, "rename failed"):
+                    write_error_csv([("Timeout", 1)], output_path)
+            with open(output_path, "r") as f:
+                self.assertEqual(f.read(), "existing output\n")
+            self.assertEqual([name for name in os.listdir(tmpdir) if name.endswith(".tmp")], [])
 
     def test_negative_max_users_is_rejected(self):
         with tempfile.NamedTemporaryFile(suffix=".csv", delete=False) as f:
