@@ -80,6 +80,11 @@ class TestWriteUserCsv(unittest.TestCase):
         finally:
             os.unlink(tmp_path)
 
+    def test_directory_output_is_rejected(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with self.assertRaisesRegex(IsADirectoryError, "Output path is a directory"):
+                write_error_csv([("Timeout", 1)], tmpdir)
+
     def test_negative_max_users_is_rejected(self):
         with tempfile.NamedTemporaryFile(suffix=".csv", delete=False) as f:
             tmp_path = f.name
