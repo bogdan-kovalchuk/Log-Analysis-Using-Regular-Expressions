@@ -179,6 +179,27 @@ class TestHtmlStructure(unittest.TestCase):
             finally:
                 sys.argv = old_argv
 
+    def test_main_rejects_output_that_would_overwrite_input(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_path = os.path.join(tmpdir, "data.csv")
+            original = "Name,Value\nalice,1\n"
+            with open(csv_path, "w", newline="") as f:
+                f.write(original)
+            html_path = os.path.join(tmpdir, "data.html")
+            from csv_to_html import main as csv_main
+            import sys
+            old_argv = sys.argv
+            try:
+                sys.argv = ["csv_to_html.py", csv_path, html_path]
+                with patch("csv_to_html.os.path.realpath", side_effect=[csv_path, csv_path]):
+                    with self.assertRaises(SystemExit) as ctx:
+                        csv_main()
+                self.assertEqual(ctx.exception.code, 1)
+            finally:
+                sys.argv = old_argv
+            with open(csv_path, "r") as f:
+                self.assertEqual(f.read(), original)
+
 
 if __name__ == "__main__":
     unittest.main()

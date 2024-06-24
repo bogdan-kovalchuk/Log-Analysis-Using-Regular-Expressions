@@ -118,6 +118,11 @@ def main():
         print("Exiting program...")
         sys.exit(1)
 
+    if os.path.normcase(os.path.realpath(csv_file)) == os.path.normcase(os.path.realpath(html_file)):
+        print("Input CSV and output HTML paths must differ")
+        print("Exiting program...")
+        sys.exit(1)
+
     # Process the data and turn it into an HTML
     try:
         data = process_csv(csv_file)
