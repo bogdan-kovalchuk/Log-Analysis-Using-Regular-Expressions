@@ -179,6 +179,22 @@ class TestHtmlStructure(unittest.TestCase):
             finally:
                 sys.argv = old_argv
 
+    def test_main_accepts_uppercase_file_extensions(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_path = os.path.join(tmpdir, "data.CSV")
+            with open(csv_path, "w", newline="") as f:
+                f.write("a,b\n1,2\n")
+            html_path = os.path.join(tmpdir, "data.HTML")
+            from csv_to_html import main as csv_main
+            import sys
+            old_argv = sys.argv
+            try:
+                sys.argv = ["csv_to_html.py", csv_path, html_path]
+                csv_main()
+                self.assertTrue(os.path.exists(html_path))
+            finally:
+                sys.argv = old_argv
+
     def test_main_rejects_output_that_would_overwrite_input(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             csv_path = os.path.join(tmpdir, "data.csv")

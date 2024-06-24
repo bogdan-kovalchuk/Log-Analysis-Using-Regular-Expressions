@@ -102,12 +102,12 @@ def main():
     html_file = sys.argv[2]
 
     # Check that file extensions are included
-    if not csv_file.endswith(".csv"):
+    if os.path.splitext(csv_file)[1].lower() != ".csv":
         print('Missing ".csv" file extension from first command-line argument!')
         print("Exiting program...")
         sys.exit(1)
 
-    if not html_file.endswith(".html"):
+    if os.path.splitext(html_file)[1].lower() != ".html":
         print('Missing ".html" file extension from second command-line argument!')
         print("Exiting program...")
         sys.exit(1)
