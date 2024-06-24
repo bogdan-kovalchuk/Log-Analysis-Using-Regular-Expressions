@@ -13,7 +13,7 @@ def process_csv(csv_file):
     if not os.path.isfile(csv_file):
         raise FileNotFoundError(f"CSV input path is not a regular file: {csv_file}")
     print("Processing {}".format(csv_file))
-    with open(csv_file, "r", encoding="utf-8", newline="") as datafile:
+    with open(csv_file, "r", encoding="utf-8-sig", newline="") as datafile:
         data = list(csv.reader(datafile))
     return data
 

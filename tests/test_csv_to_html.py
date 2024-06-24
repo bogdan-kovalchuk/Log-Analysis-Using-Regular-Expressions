@@ -54,6 +54,15 @@ class TestProcessCsv(unittest.TestCase):
         finally:
             os.unlink(tmp_path)
 
+    def test_reads_bom_prefixed_csv_file(self):
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False, encoding="utf-8") as f:
+            f.write("\ufeffName,Value\nalice,1\n")
+            tmp_path = f.name
+        try:
+            self.assertEqual(process_csv(tmp_path), [["Name", "Value"], ["alice", "1"]])
+        finally:
+            os.unlink(tmp_path)
+
     def test_rejects_directory_input(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             with self.assertRaises(IsADirectoryError):
