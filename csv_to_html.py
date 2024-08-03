@@ -89,17 +89,18 @@ def write_html_file(html_string, html_file):
         raise
     print("Table succesfully written to {}".format(html_file))
 
-def main():
+def main(argv=None):
     """Verifies the arguments and then calls the processing function"""
+    args = sys.argv[1:] if argv is None else argv
+
     # Check that command-line arguments are included
-    if len(sys.argv) < 3:
+    if len(args) < 2:
         print("ERROR: Missing command-line argument!")
         print("Exiting program...")
         sys.exit(1)
 
     # Open the files
-    csv_file = sys.argv[1]
-    html_file = sys.argv[2]
+    csv_file, html_file = args[:2]
 
     # Check that file extensions are included
     if os.path.splitext(csv_file)[1].lower() != ".csv":
@@ -129,7 +130,7 @@ def main():
         title = os.path.splitext(os.path.basename(csv_file))[0].replace("_", " ").title()
         html_string = data_to_html(title, data)
         write_html_file(html_string, html_file)
-    except OSError as e:
+    except (OSError, UnicodeError) as e:
         print(f"Error: {e}")
         print("Exiting program...")
         sys.exit(1)

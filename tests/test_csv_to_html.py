@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from csv_to_html import data_to_html, process_csv, write_html_file
+from csv_to_html import data_to_html, main, process_csv, write_html_file
 
 
 class TestDataToHtml(unittest.TestCase):
@@ -142,6 +142,26 @@ class TestHtmlStructure(unittest.TestCase):
         result = data_to_html("Empty", [])
         self.assertIn("No data", result)
         self.assertNotIn("<table>", result)
+
+    def test_main_accepts_explicit_arguments(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_path = os.path.join(tmpdir, "data.csv")
+            html_path = os.path.join(tmpdir, "data.html")
+            with open(csv_path, "w", newline="") as f:
+                f.write("a,b\n1,2\n")
+            main([csv_path, html_path])
+            self.assertTrue(os.path.exists(html_path))
+
+    def test_main_reports_invalid_utf8_input_cleanly(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_path = os.path.join(tmpdir, "data.csv")
+            html_path = os.path.join(tmpdir, "data.html")
+            with open(csv_path, "wb") as f:
+                f.write(b"name,value\n\xff,1\n")
+            with self.assertRaises(SystemExit) as ctx:
+                main([csv_path, html_path])
+            self.assertEqual(ctx.exception.code, 1)
+            self.assertFalse(os.path.exists(html_path))
 
     def test_main_rejects_directory_csv_input_cleanly(self):
         with tempfile.TemporaryDirectory() as tmpdir:
