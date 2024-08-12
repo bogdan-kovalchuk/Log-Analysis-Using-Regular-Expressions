@@ -1,40 +1,19 @@
 #!/usr/bin/env python3
 
-import operator
-import re
-import csv
+from aggregation import count_errors, count_per_user
+from log_parser import parse_file
+from reporting import write_error_csv, write_user_csv
+
 
 def main():
-    per_error={}
-    per_user={}
-    with open("syslog.log", "r") as file:
-        for line in file:
-            match = re.search(r"ticky: ([\w]+) (.+) \(([\w.]+)\)", line)
-            message_type, error, user = match.group(1), match.group(2), match.group(3)
-            if message_type == "ERROR":
-                if error not in per_error:
-                    per_error[error]=1
-                else:
-                    per_error[error]+=1
-            if user not in per_user:
-                per_user[user]={"INFO":0,"ERROR":0}
-            per_user[user][message_type]+=1
+    entries = parse_file("syslog.log")
 
-    per_error = sorted(per_error.items(), key=operator.itemgetter(1), reverse=True)
-    per_error = tuple(map(lambda x: (x[0], x[1]), per_error))
+    error_data = count_errors(entries)
+    user_data = count_per_user(entries)
 
-    per_user = sorted(per_user.items(), key=operator.itemgetter(0))
-    per_user = tuple(map(lambda x: (x[0], x[1]["INFO"], x[1]["ERROR"]), per_user))
+    write_error_csv(error_data, "error_message.csv")
+    write_user_csv(user_data, "user_statistics.csv", max_users=8)
 
-    with open("error_message.csv", "w", newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(["Error", "Count"])
-        writer.writerows(per_error)
-
-    with open("user_statistics.csv", "w", newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(["Username", "INFO", "ERROR"])
-        writer.writerows(per_user[0:8])
 
 if __name__ == "__main__":
     main()
