@@ -37,6 +37,11 @@ class TestBuildParser(unittest.TestCase):
         args = parser.parse_args(["--encoding", "latin-1"])
         self.assertEqual(args.encoding, "latin-1")
 
+    def test_custom_max_users(self):
+        parser = build_parser()
+        args = parser.parse_args(["--max-users", "3"])
+        self.assertEqual(args.max_users, 3)
+
 
 class TestMain(unittest.TestCase):
     def test_end_to_end(self):
@@ -66,6 +71,23 @@ class TestMain(unittest.TestCase):
             self.assertEqual(user_rows[1], ["ac", "0", "1"])
             self.assertEqual(user_rows[2], ["breee", "0", "1"])
             self.assertEqual(user_rows[3], ["mdouglas", "1", "0"])
+
+    def test_max_users_limits_user_report(self):
+        log_content = (
+            "Jan 31 00:09:39 host ticky: INFO Created ticket (charlie)\n"
+            "Jan 31 00:10:00 host ticky: ERROR Timeout (alice)\n"
+            "Jan 31 00:11:00 host ticky: INFO Closed ticket (bob)\n"
+        )
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_path = os.path.join(tmpdir, "test.log")
+            error_path = os.path.join(tmpdir, "errors.csv")
+            user_path = os.path.join(tmpdir, "users.csv")
+            with open(log_path, "w") as f:
+                f.write(log_content)
+            main([log_path, "--error-csv", error_path, "--user-csv", user_path, "--max-users", "2"])
+            with open(user_path, "r") as f:
+                user_rows = list(csv.reader(f))
+            self.assertEqual(user_rows, [["Username", "INFO", "ERROR"], ["alice", "0", "1"], ["bob", "1", "0"]])
 
     def test_missing_logfile_exits_with_error(self):
         with self.assertRaises(SystemExit) as ctx:

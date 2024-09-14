@@ -19,6 +19,8 @@ def build_parser():
                         help="Output path for user statistics CSV")
     parser.add_argument("--encoding", default="utf-8",
                         help="Encoding of the log file (default: utf-8)")
+    parser.add_argument("--max-users", type=int,
+                        help="Limit rows in the user statistics CSV")
     return parser
 
 
@@ -58,7 +60,7 @@ def main(argv=None):
         user_data = count_per_user(entries)
 
         write_error_csv(error_data, args.error_csv)
-        write_user_csv(user_data, args.user_csv)
+        write_user_csv(user_data, args.user_csv, max_users=args.max_users)
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
