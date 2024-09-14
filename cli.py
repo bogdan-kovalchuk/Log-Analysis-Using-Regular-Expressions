@@ -39,6 +39,9 @@ def main(argv=None):
     parser = build_parser()
     args = parser.parse_args(argv)
 
+    if os.path.isdir(args.logfile):
+        print(f"Error: log file path is a directory: {args.logfile}", file=sys.stderr)
+        sys.exit(1)
     if not os.path.isfile(args.logfile):
         print(f"Error: log file not found: {args.logfile}", file=sys.stderr)
         sys.exit(1)

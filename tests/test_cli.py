@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
 import csv
+import io
 import os
 import tempfile
 import unittest
+from contextlib import redirect_stderr
 
 from cli import build_parser, main
 
@@ -69,6 +71,14 @@ class TestMain(unittest.TestCase):
         with self.assertRaises(SystemExit) as ctx:
             main(["/nonexistent/path/to/log.log"])
         self.assertEqual(ctx.exception.code, 1)
+
+    def test_directory_logfile_reports_the_actual_problem(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            stderr = io.StringIO()
+            with redirect_stderr(stderr), self.assertRaises(SystemExit) as ctx:
+                main([tmpdir])
+            self.assertEqual(ctx.exception.code, 1)
+            self.assertIn("is a directory", stderr.getvalue())
 
     def test_invalid_output_path_exits_with_error(self):
         log_content = "Jan 31 00:09:39 ubuntu.local ticky: INFO Created ticket [#1] (alice)\n"
